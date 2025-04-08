@@ -1,6 +1,12 @@
 "use client"; // 新結構中常用於啟用客戶端渲染
 
 import { useState } from "react";
+export const metadata = {
+  title: "待辦事項", // 設定頁面的標題
+  description: "管理您的待辦事項", // （可選）描述頁面的用途
+};
+
+
 
 export default function Todo() {
   const [tasks, setTasks] = useState([]);
