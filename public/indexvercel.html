@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>富時台轉換成台指期</title>
+    <style>
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border: 3px solid black; /* 設定表格外框為粗黑框 */
+        }
+        td {
+            border: 3px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+        /* 第 2 橫列 (索引為 1) 的樣式 */
+        tr:nth-child(2) td:nth-child(1) { background-color: yellow; color: red; }
+        tr:nth-child(2) td:nth-child(2) { background-color: blue; color: white; }
+        tr:nth-child(2) td:nth-child(3) { background-color: red; color: white; }
+        tr:nth-child(4) td:nth-child(2) { background-color: red; color: white; }
+    </style>
+    <script>
+        let countdown = 10;
+        const urls = [
+                "https://www.wearn.com/bbs/t1193342.html",
+                "https://www.wearn.com/bbs/t1193424.html",
+                "https://www.wearn.com/bbs/t1193422.html",
+                "https://www.wearn.com/bbs/t1193426.html",
+                "https://www.wearn.com/bbs/t1193553.html",
+                "https://www.wearn.com/bbs/t1193575.html",
+                "https://www.wearn.com/bbs/t1194003.html"
+            ];
+
+        // 更改為 Vercel 部署的 URL
+        const serverUrl = "https://tnnnodeserver.vercel.app";
+
+        function fetchData() {
+            fetch(`${serverUrl}/data`)
+                .then(response => response.json())
+                .then(data => {
+                    updateTable(data.data);
+                    countdown = 10;
+                })
+                .catch(error => console.error("Error fetching data:", error));
+            // const randomURL = urls[Math.floor(Math.random() * urls.length)];
+            // fetch(randomURL, { mode: 'no-cors' })
+            //     .then(response => {
+            //         console.log("Random URL accessed successfully:", randomURL, response);
+            //     })
+            //     .catch(error => console.error("Error accessing random URL:", randomURL, error));
+        }
+
+        function updateTable(data) {
+            let tableHTML = "<table><tbody>";
+            
+            data.forEach((row, rowIndex) => {
+                tableHTML += "<tr>";
+                row.forEach((cell, colIndex) => {
+                    tableHTML += `<td>${cell}</td>`;
+                });
+                tableHTML += "</tr>";
+            });
+
+            tableHTML += "</tbody></table>";
+            document.getElementById("tableContainer").innerHTML = tableHTML;
+        }
+
+        function updateCountdown() {
+            document.getElementById("countdown").innerText = `倒數 ${countdown} 秒後，畫面自動更新`;
+            countdown--;
+            if (countdown < 0) {
+                fetchData();
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
+        window.onload = fetchData;
+    </script>
+</head>
+<body>
+    <h1>富時台轉換成台指期</h1>
+    <p id="countdown">倒數 10 秒後，畫面自動更新</p>
+    <div id="tableContainer">等待資料載入...</div>
+</body>
+</html>
