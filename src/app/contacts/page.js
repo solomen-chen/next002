@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
+import Head from 'next/head'; // 從 next/head 引入
+
 
 export default function Contacts() {
   const [contacts, setContacts] = useState([]);
@@ -131,39 +133,45 @@ export default function Contacts() {
   };
 
   return (
-    <main className="container mx-auto py-8 px-4 max-w-4xl">
-      <h1 className="text-3xl font-bold text-center mb-8">親友通訊錄</h1>
+    <>
       
-      {error && (
-        <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
-          {error}
-          <button 
-            className="ml-2 underline" 
-            onClick={() => setError('')}
-          >
-            關閉
-          </button>
-        </div>
-      )}
-      
-      <ContactForm 
-        onAddContact={handleAddContact}
-        editingContact={editingContact}
-        onUpdateContact={handleUpdateContact}
-        onCancelEdit={handleCancelEdit}
-      />
-      
-      {loading ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500">載入中...</p>
-        </div>
-      ) : (
-        <ContactList 
-          contacts={contacts}
-          onEdit={handleEditContact}
-          onDelete={handleDeleteContact}
+        <title>親友通訊錄</title>
+        {/* <meta name="description" content="管理您的親友聯絡人資訊" /> */}
+
+     
+      <main className="container mx-auto py-8 px-4 max-w-4xl">
+        <h1 className="text-3xl font-bold text-center mb-8">親友通訊錄</h1>
+        
+        {error && (
+          <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
+            {error}
+            <button 
+              className="ml-2 underline" 
+              onClick={() => setError('')}
+            >
+              關閉
+            </button>
+          </div>
+        )}
+        
+        <ContactForm 
+          onAddContact={handleAddContact}
+          editingContact={editingContact}
+          onUpdateContact={handleUpdateContact}
+          onCancelEdit={handleCancelEdit}
         />
-      )}
-    </main>
-  );
+        
+        {loading ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">載入中...</p>
+          </div>
+        ) : (
+          <ContactList 
+            contacts={contacts}
+            onEdit={handleEditContact}
+            onDelete={handleDeleteContact}
+          />
+        )}
+      </main>
+    </>);
 }

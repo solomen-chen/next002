@@ -6,6 +6,7 @@ export default function Counter() {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
+      <title>計數器</title>
       <h1>{number}</h1>
       <div>
         <button
