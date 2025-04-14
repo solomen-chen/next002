@@ -1,0 +1,193 @@
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8"></meta>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"></meta>
+    <title>網頁鬧鐘</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #current-time { font-size: 2em; margin: 20px 0; }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            box-shadow: 0 5px #666;
+            transition: all 0.2s ease;
+            border-radius: 12px;
+        }
+      
+      	button:active {
+            box-shadow: 0 2px #666;
+            transform: translateY(4px);
+        } 
+      
+        button:enabled {
+            background-color: blue;
+            color: white;
+        }
+        button:disabled {
+            background-color: gray;
+            color: black;
+        } 
+        
+        /* 新增提示訊息樣式 */
+        #alarm-notification {
+            display: none;
+            background-color: #ff9800;
+            color: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>網頁鬧鐘</h1>
+    <div id="current-time"></div>
+    <input id="alarm-time" type="time" />
+    <br /><br />
+    <button id="autoset-alarm" onclick="autoSet()">自動設定</button>
+    <button id="set-alarm" onclick="setAlarm()">設定完成</button>
+    <button disabled="" id="stop-alarm" onclick="stopAlarm()">響鈴停止</button>
+    <button disabled="" id="cancel-alarm" onclick="cancelAlarm()">設定取消</button>
+    
+    <!-- 新增提示訊息 -->
+    <div id="alarm-notification">
+        鬧鐘時間到了！點擊此處播放鬧鈴聲
+    </div>
+    
+    <!-- 預載音頻 -->
+    <audio id="alarm-sound" loop="" src="https://ia801903.us.archive.org/2/items/md_music_sonic_the_hedgehog/02%20-%20Green%20Hill%20Zone%20-%20Masato%20Nakamura.mp3"></audio>
+    <!-- <audio id="alarm-sound" src="./alarmring.wav" loop></audio> -->
+
+    <script>
+        let alarmTimeout;
+        // 初始化時預載音頻
+        const alarmSound = document.getElementById('alarm-sound');
+        const alarmNotification = document.getElementById('alarm-notification');
+        
+        // 頁面載入時初始化音頻
+        document.addEventListener('DOMContentLoaded', function() {
+            // 設置音頻預載
+            alarmSound.load();
+            // 添加通知點擊事件
+            alarmNotification.addEventListener('click', function() {
+                playAlarmSound();
+            });
+        });
+
+        function updateTime() {
+           document.getElementById('current-time').innerText = new Date().toLocaleTimeString('en-GB', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit',
+                                    hour12: false
+                                });					
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function setAlarm() {
+            const alarmTime = document.getElementById('alarm-time').value;
+            if (!alarmTime) return alert("請輸入時間");
+            
+            const [hours, minutes] = alarmTime.split(':');
+            const now = new Date();
+            let alarmDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
+            
+            if (alarmDate <= now) alarmDate.setDate(alarmDate.getDate() + 1);
+            
+            const timeToAlarm = alarmDate - now;
+            alarmTimeout = setTimeout(() => {
+                showAlarmNotification();
+                // 在桌面環境嘗試自動播放
+                if (!isMobileDevice()) {
+                    playAlarmSound();
+                }
+                toggleButtons('stop-alarm');
+            }, timeToAlarm);
+            
+            toggleButtons('cancel-alarm');
+        }
+      
+      	function autoSet() {
+            const startTime = new Date();
+        	startTime.setMinutes(0, 0, 0); // 設定整點為起始時間
+        
+        	const now = new Date();
+        	let nextAlarm = new Date(startTime);
+
+            while (nextAlarm < now) {
+                nextAlarm.setMinutes(nextAlarm.getMinutes() + 15);
+            }
+
+            const alarmTime = new Date(nextAlarm.getTime() - 60000); // 在間隔到達前的一分鐘
+
+            const hours = alarmTime.getHours().toString().padStart(2, '0');
+            const minutes = alarmTime.getMinutes().toString().padStart(2, '0');
+
+            const alarmTimeString = `${hours}:${minutes}`;
+          	document.getElementById("alarm-time").value = alarmTimeString; // 將時間填入輸入欄位
+        }
+        
+        // 播放警報聲音的函數
+        function playAlarmSound() {
+            // 嘗試播放音頻
+            const playPromise = alarmSound.play();
+            
+            // 處理播放承諾，解決自動播放政策問題
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // 播放成功
+                    console.log('音頻開始播放');
+                }).catch(error => {
+                    // 播放失敗，可能是因為沒有用戶互動
+                    console.log('無法自動播放音頻: ', error);
+                    // 保持通知可見，以便用戶點擊
+                    showAlarmNotification();
+                });
+            }
+        }
+        
+        // 顯示通知訊息
+        function showAlarmNotification() {
+            alarmNotification.style.display = 'block';
+        }
+        
+        // 隱藏通知訊息
+        function hideAlarmNotification() {
+            alarmNotification.style.display = 'none';
+        }
+
+        function stopAlarm() {
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            hideAlarmNotification();
+            toggleButtons('set-alarm');
+        }
+
+        function cancelAlarm() {
+            clearTimeout(alarmTimeout);
+            hideAlarmNotification();
+            toggleButtons('set-alarm');
+        }
+
+        function toggleButtons(enabledId) {
+            document.getElementById('set-alarm').disabled = enabledId === 'set-alarm' ? false : true;
+            document.getElementById('stop-alarm').disabled = enabledId === 'stop-alarm' ? false : true;
+            document.getElementById('cancel-alarm').disabled = enabledId === 'cancel-alarm' ? false : true;
+        }
+        
+        // 檢測是否為移動設備
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+    </script>
+</body>
+</html>
