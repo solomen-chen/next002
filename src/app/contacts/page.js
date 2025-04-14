@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
-import Head from 'next/head'; // 從 next/head 引入
+
 
 
 export default function Contacts() {
