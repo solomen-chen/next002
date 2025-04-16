@@ -1,7 +1,7 @@
 // src/app/contacts/lib/mongodb.js
 import mongoose from 'mongoose';
 
-const MONGODB_URI = "mongodb+srv://aaqoo223goole:zMpOd7NACIGvAuIl@cluster0.mgjvwzy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const MONGODB_URI = "mongodb+srv://aaqoo223goole:zMpOd7NACIGvAuIl@cluster0.mgjvwzy.mongodb.net/contactsDB?retryWrites=true&w=majority&appName=Cluster0";
 
 if (!MONGODB_URI) {
   throw new Error('請定義 MONGODB_URI 環境變數');
